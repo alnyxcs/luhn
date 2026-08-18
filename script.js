@@ -540,8 +540,12 @@ function renderResults(cards) {
     num.tabIndex = 0;
     num.addEventListener("click", () => {
       copyText(num.textContent.replace(/\s+/g, "")).then((ok) => {
-        if (ok) flashCopied(li);
-        else showToast("Couldn't copy", "error");
+        if (ok) {
+          flashCopied(li);
+          showToast("Copied", "ok");
+        } else {
+          showToast("Couldn't copy", "error");
+        }
       });
     });
     num.addEventListener("keydown", (e) => {
@@ -572,8 +576,12 @@ function renderResults(cards) {
     copyBtn.addEventListener("click", () => {
       const v = rowValues(li);
       copyText(`${v.number}|${v.expiry}|${v.cvv}`).then((ok) => {
-        if (ok) flashCopied(li);
-        else showToast("Couldn't copy", "error");
+        if (ok) {
+          flashCopied(li);
+          showToast("Copied", "ok");
+        } else {
+          showToast("Couldn't copy", "error");
+        }
       });
     });
 
@@ -661,8 +669,12 @@ els.copyAllBtn.addEventListener("click", () => {
   // текст собираем из данных, а не из DOM — быстро при 1000 строк
   const text = state.lastCards.map((c) => c.number).join("\n");
   copyText(text).then((ok) => {
-    if (ok) flashCopyAll();
-    else showToast("Couldn't copy", "error");
+    if (ok) {
+      flashCopyAll();
+      showToast(`Copied ${state.lastCards.length} numbers`, "ok");
+    } else {
+      showToast("Couldn't copy", "error");
+    }
   });
 });
 
@@ -695,6 +707,7 @@ els.exportBtn.addEventListener("click", () => {
     a.remove();
     URL.revokeObjectURL(url);
     flashExport();
+    showToast(`Exported ${state.lastCards.length} numbers`, "ok");
   } catch (err) {
     showToast("Couldn't export", "error");
   }
@@ -709,8 +722,12 @@ els.card.addEventListener("click", () => {
     return;
   }
   copyText(raw).then((ok) => {
-    if (ok) flashNote("Copied ✓");
-    else showToast("Couldn't copy", "error");
+    if (ok) {
+      flashNote("Copied ✓");
+      showToast("Copied", "ok");
+    } else {
+      showToast("Couldn't copy", "error");
+    }
   });
 });
 
