@@ -72,9 +72,13 @@ No installation required:
 ## Project structure
 
 ```
-├── index.html   # interface markup (semantic, with ARIA attributes)
-├── style.css    # dark theme, card, animations, responsiveness
-└── script.js    # all logic: generation, validation, copying, export
+├── index.html    # interface markup (semantic, with ARIA attributes, SEO meta tags)
+├── style.css     # dark theme, card, animations, responsiveness
+├── script.js     # all logic: generation, validation, copying, export
+├── favicon.svg   # site favicon (brand mark)
+├── og-image.png  # Open Graph / social preview image
+├── robots.txt    # crawl rules + sitemap reference
+└── sitemap.xml   # XML sitemap (single-page site)
 ```
 
 ## How it works

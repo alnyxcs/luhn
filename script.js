@@ -28,6 +28,7 @@ const BRANDS = {
   },
   amex: {
     label: "American Express",
+    short: "Amex",
     mark: "Amex",
     length: 15,
     randomPrefix: () => (Math.random() < 0.5 ? "34" : "37"),
@@ -160,19 +161,9 @@ function detectBrand(number) {
   if (/^220[0-4]/.test(number)) return "mir";
   if (/^62/.test(number)) return "unionpay";
   if (/^(6011|64[4-9]|65)/.test(number)) return "discover";
-  if (/^35/.test(number)) return "jcb";
+  if (/^35(2[89]|[3-8]\d)/.test(number)) return "jcb";
   return null;
 }
-
-const BRAND_LABELS = {
-  visa: "Visa",
-  mastercard: "Mastercard",
-  amex: "Amex",
-  mir: "Mir",
-  unionpay: "UnionPay",
-  discover: "Discover",
-  jcb: "JCB",
-};
 
 function formatNumber(number) {
   if (number.length === 15) {
@@ -819,7 +810,7 @@ function renderResults(cards) {
 
     const brand = document.createElement("span");
     brand.className = "result__brand";
-    brand.textContent = card.brand ? BRAND_LABELS[card.brand] || t("unknown") : t("unknown");
+    brand.textContent = card.brand ? BRANDS[card.brand].short || BRANDS[card.brand].label : t("unknown");
 
     if (card.valid === false) {
       const badge = document.createElement("span");
