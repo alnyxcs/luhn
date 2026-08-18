@@ -56,6 +56,42 @@ const BRANDS = {
     glow: "rgba(40, 120, 220, 0.18)",
     tint: "rgba(40, 120, 220, 0.07)",
   },
+  discover: {
+    label: "Discover",
+    mark: "Discover",
+    length: 16,
+    // 6011, 65 или 644–649
+    randomPrefix: () => {
+      const r = Math.random();
+      if (r < 0.45) return "6011";
+      if (r < 0.7) return "65";
+      return String(644 + Math.floor(Math.random() * 6)); // 644–649
+    },
+    glow: "rgba(230, 90, 60, 0.16)",
+    tint: "rgba(230, 90, 60, 0.06)",
+  },
+  jcb: {
+    label: "JCB",
+    mark: "JCB",
+    length: 16,
+    // 3528–3589
+    randomPrefix: () => String(3528 + Math.floor(Math.random() * 62)),
+    glow: "rgba(60, 160, 90, 0.16)",
+    tint: "rgba(60, 160, 90, 0.06)",
+  },
+  any: {
+    label: "Any",
+    mark: "Any",
+    // длина зависит от префикса: Amex — 15, остальные — 16
+    length: (prefix) => (/^(34|37)/.test(prefix) ? 15 : 16),
+    // случайный реальный IIN из всех известных сетей — номера выглядят как настоящие
+    randomPrefix: () => {
+      const ranges = ["4", "51", "52", "53", "54", "55", "2221", "2720", "34", "37", "2200", "2201", "2202", "2203", "2204", "62", "6011", "65", "3528"];
+      return ranges[Math.floor(Math.random() * ranges.length)];
+    },
+    glow: "rgba(255, 255, 255, 0.10)",
+    tint: "rgba(255, 255, 255, 0.04)",
+  },
 };
 
 /* ---------- алгоритм Луна ---------- */
@@ -116,8 +152,14 @@ function randomDigits(count) {
  * Защитный цикл: номер пересобирается, пока не станет валидным по Luhn.
  */
 function generateNumber(brand, bin) {
-  const length = brand.length;
   let prefix = bin ? bin : brand.randomPrefix();
+  const length = typeof brand.length === "function" ? brand.length(prefix) : brand.length;
+
+  // BIN уже полной длины (или длиннее) — используем как есть,
+  // валидность определит Luhn-проверка в generate()
+  if (prefix.length >= length) {
+    return prefix;
+  }
 
   let number = "";
   for (let attempt = 0; attempt < 100; attempt++) {
@@ -140,8 +182,21 @@ function detectBrand(number) {
   if (/^(34|37)/.test(number)) return "amex";
   if (/^220[0-4]/.test(number)) return "mir";
   if (/^62/.test(number)) return "unionpay";
+  if (/^(6011|64[4-9]|65)/.test(number)) return "discover";
+  if (/^35/.test(number)) return "jcb";
   return null;
 }
+
+/* подписи сетей для списка результатов (включая Discover/JCB из режима Any) */
+const BRAND_LABELS = {
+  visa: "Visa",
+  mastercard: "Mastercard",
+  amex: "Amex",
+  mir: "Mir",
+  unionpay: "UnionPay",
+  discover: "Discover",
+  jcb: "JCB",
+};
 
 /* ---------- форматирование ---------- */
 
@@ -171,7 +226,7 @@ function randomCvv(brandKey) {
 /* ---------- состояние ---------- */
 
 const state = {
-  brand: "visa",
+  brand: "any",
   qty: 3,
   lastCards: [],
 };
@@ -227,6 +282,8 @@ function syncSegIndicator() {
   if (!active) return;
   els.brandSeg.style.setProperty("--seg-x", `${active.offsetLeft}px`);
   els.brandSeg.style.setProperty("--seg-w", `${active.offsetWidth}px`);
+  els.brandSeg.style.setProperty("--seg-y", `${active.offsetTop}px`);
+  els.brandSeg.style.setProperty("--seg-h", `${active.offsetHeight}px`);
 }
 
 window.addEventListener("resize", syncSegIndicator);
@@ -265,17 +322,24 @@ function validateBin() {
     return null;
   }
 
-  if (!/^\d{6}$/.test(raw)) {
+  // принимаем любой набор цифр до 19 — валидность карты покажет строка результата
+  if (!/^\d{1,19}$/.test(raw)) {
     els.binInput.classList.add("is-invalid");
     note.hidden = false;
     note.classList.remove("is-warn");
-    note.textContent = "Exactly 6 digits required";
+    note.textContent = "Digits only, up to 19";
     return null;
   }
 
   els.binInput.classList.remove("is-invalid");
   note.hidden = false;
   note.classList.add("is-warn");
+
+  // для Any любой префикс подходит — предупреждения не нужны
+  if (state.brand === "any") {
+    note.hidden = true;
+    return raw;
+  }
 
   // мягкое предупреждение о несоответствии выбранной системе
   const detected = detectBrand(raw);
@@ -292,7 +356,7 @@ function validateBin() {
 
 // авто-очистка нецифровых символов (вставка с пробелами/дефисами)
 els.binInput.addEventListener("input", () => {
-  const clean = els.binInput.value.replace(/\D/g, "").slice(0, 6);
+  const clean = els.binInput.value.replace(/\D/g, "").slice(0, 19);
   if (clean !== els.binInput.value) {
     els.binInput.value = clean;
   }
@@ -408,11 +472,19 @@ function buildBrandMark(brandKey) {
   return wrap;
 }
 
-function updateCardPreview() {
-  const brand = BRANDS[state.brand];
+function setPreviewBrand(brandKey) {
+  const brand = BRANDS[brandKey];
+  if (!brand) return;
   els.card.style.setProperty("--brand-glow", brand.glow);
   els.card.style.setProperty("--brand-tint", brand.tint || "transparent");
-  els.cardBrand.replaceChildren(buildBrandMark(state.brand));
+  els.cardBrand.replaceChildren(buildBrandMark(brandKey));
+}
+
+function updateCardPreview() {
+  const brand = BRANDS[state.brand];
+  els.brandSeg.style.setProperty("--brand-glow", brand.glow);
+  els.brandSeg.style.setProperty("--brand-tint", brand.tint || "transparent");
+  setPreviewBrand(state.brand);
 }
 
 /* ---------- сброс превью к заглушке ---------- */
@@ -465,6 +537,15 @@ const ICON_CHECK =
   `<path d="M20 6 9 17l-5-5"></path>` +
   `</svg>`;
 
+/* инлайн-состояние «Copied» на отдельном элементе (срок/CVV), гаснет через 1.5с */
+function flashCopiedItem(el) {
+  el.classList.add("is-copied");
+  clearTimeout(el._copyTimer);
+  el._copyTimer = setTimeout(() => {
+    el.classList.remove("is-copied");
+  }, 1500);
+}
+
 /* инлайн-состояние «Copied» на строке результата, гаснет через 1.5с */
 function flashCopied(li) {
   li.classList.add("is-copied");
@@ -498,7 +579,7 @@ function flashNote(text) {
   clearTimeout(note._timer);
   note._timer = setTimeout(() => {
     note.classList.remove("is-copied");
-    note.textContent = "Click the card to copy the number";
+    note.textContent = "Click the card to copy number, expiry and CVV";
   }, 1500);
 }
 
@@ -526,6 +607,11 @@ function renderResults(cards) {
   const buildRow = (card, index) => {
     const li = document.createElement("li");
     li.className = "result";
+    // свечение строки в палитре системы карты
+    if (card.brand && BRANDS[card.brand]) {
+      li.style.setProperty("--brand-glow", BRANDS[card.brand].glow);
+      li.style.setProperty("--brand-tint", BRANDS[card.brand].tint || "transparent");
+    }
     // каскад только у первых строк, остальные появляются сразу
     if (!large) li.style.animationDelay = `${Math.min(index, 8) * 0.06}s`;
 
@@ -555,15 +641,55 @@ function renderResults(cards) {
       }
     });
 
+    // кликабельные срок и CVV — копируются по клику
+    const makeCopyItem = (text, title) => {
+      const el = document.createElement("span");
+      el.className = "result__meta-item result__meta-item--copy";
+      el.textContent = text;
+      el.title = title;
+      el.role = "button";
+      el.tabIndex = 0;
+      el.addEventListener("click", () => {
+        copyText(text).then((ok) => {
+          if (ok) {
+            flashCopiedItem(el);
+            showToast("Copied", "ok");
+          } else {
+            showToast("Couldn't copy", "error");
+          }
+        });
+      });
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          el.click();
+        }
+      });
+      return el;
+    };
+
     const meta = document.createElement("span");
     meta.className = "result__meta";
-    meta.innerHTML =
-      `<span class="result__meta-item">${card.expiry}</span>` +
-      `<span class="result__meta-sep">·</span>` +
-      `<span class="result__meta-item">${card.cvv}</span>`;
+    const expiryEl = makeCopyItem(card.expiry, "Copy expiry");
+    const sep = document.createElement("span");
+    sep.className = "result__meta-sep";
+    sep.textContent = "·";
+    const cvvEl = makeCopyItem(card.cvv, "Copy CVV");
+    meta.append(expiryEl, sep, cvvEl);
 
-    main.append(num, meta);
+    const brand = document.createElement("span");
+    brand.className = "result__brand";
+    brand.textContent = card.brand ? BRAND_LABELS[card.brand] || "Unknown" : "Unknown";
 
+    // невалидная карта (введённый полный номер не прошёл Luhn) — помечаем строку
+    if (card.valid === false) {
+      const badge = document.createElement("span");
+      badge.className = "result__badge";
+      badge.textContent = "Invalid";
+      main.append(badge);
+    }
+
+    main.append(num, brand, meta);
     const actions = document.createElement("div");
     actions.className = "result__actions";
 
@@ -721,7 +847,10 @@ els.card.addEventListener("click", () => {
     flashNote("Generate first");
     return;
   }
-  copyText(raw).then((ok) => {
+  // копируются все данные: номер|срок|CVV
+  const expiry = els.cardExpiry.textContent;
+  const cvv = els.cardCvv.textContent;
+  copyText(`${raw}|${expiry}|${cvv}`).then((ok) => {
     if (ok) {
       flashNote("Copied ✓");
       showToast("Copied", "ok");
@@ -752,10 +881,13 @@ function generate(opts) {
   const cards = [];
 
   for (let i = 0; i < state.qty; i++) {
+    const number = generateNumber(brand, bin);
     cards.push({
-      number: generateNumber(brand, bin),
+      number,
       expiry: randomExpiry(),
       cvv: randomCvv(state.brand),
+      brand: detectBrand(number),
+      valid: isValidLuhn(number),
     });
   }
 
@@ -764,6 +896,9 @@ function generate(opts) {
 
   // обновляем превью
   setCardData(cards[0]);
+
+  // превью показывает фактическую сеть первой карты (в Any — распознанную по номеру)
+  if (cards[0].brand) setPreviewBrand(cards[0].brand);
 
   els.card.classList.remove("is-refreshing");
   void els.card.offsetWidth;

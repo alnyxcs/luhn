@@ -22,17 +22,20 @@
         <div class="field">
           <span class="field__label">Payment network</span>
           <div class="segmented" id="brandSeg" role="tablist" aria-label="Payment network selection">
-            <button class="segmented__item is-active" type="button" role="tab" aria-selected="true" data-brand="visa">Visa</button>
-            <button class="segmented__item" type="button" role="tab" aria-selected="false" data-brand="mastercard">Mastercard</button>
-            <button class="segmented__item" type="button" role="tab" aria-selected="false" data-brand="amex">Amex</button>
-            <button class="segmented__item" type="button" role="tab" aria-selected="false" data-brand="mir">Mir</button>
-            <button class="segmented__item" type="button" role="tab" aria-selected="false" data-brand="unionpay">UnionPay</button>
+            <button class="segmented__item segmented__item--wide is-active" type="button" role="tab" aria-selected="true" data-brand="any">Any</button>
+            <button class="segmented__item segmented__item--half" type="button" role="tab" aria-selected="false" data-brand="visa">Visa</button>
+            <button class="segmented__item segmented__item--half" type="button" role="tab" aria-selected="false" data-brand="mastercard">Mastercard</button>
+            <button class="segmented__item segmented__item--third" type="button" role="tab" aria-selected="false" data-brand="amex">Amex</button>
+            <button class="segmented__item segmented__item--third" type="button" role="tab" aria-selected="false" data-brand="mir">Mir</button>
+            <button class="segmented__item segmented__item--third" type="button" role="tab" aria-selected="false" data-brand="unionpay">UnionPay</button>
+            <button class="segmented__item segmented__item--half" type="button" role="tab" aria-selected="false" data-brand="discover">Discover</button>
+            <button class="segmented__item segmented__item--half" type="button" role="tab" aria-selected="false" data-brand="jcb">JCB</button>
           </div>
         </div>
 
         <div class="field">
           <label class="field__label" for="binInput">BIN prefix <span class="field__hint">optional</span></label>
-          <input id="binInput" class="input" type="text" inputmode="numeric" maxlength="6"
+          <input id="binInput" class="input" type="text" inputmode="numeric" maxlength="19"
                  placeholder="400000" autocomplete="off" spellcheck="false">
           <p class="field__note" id="binNote" hidden></p>
         </div>
@@ -95,7 +98,7 @@
             </div>
           </div>
         </div>
-        <p class="preview__note" id="previewNote">Click the card to copy the number</p>
+        <p class="preview__note" id="previewNote">Click the card to copy number, expiry and CVV</p>
       </section>
 
     </div>

@@ -10,11 +10,12 @@ A lightweight web tool for developers and testers: generates card numbers that p
 
 ## Features
 
-- **5 payment networks** — Visa, Mastercard, Amex, Mir, UnionPay
+- **8 payment network modes** — **Any** (full-width, random real network) plus Visa, Mastercard, Amex, Mir, UnionPay, Discover, JCB
 - **Luhn-valid numbers** — every number passes the checksum validation (not just random digits)
-- **BIN prefix** — generate with a custom 6-digit prefix; built-in network detector with soft warnings on mismatch
+- **BIN prefix** — generate with a custom prefix (any digits, up to 19); built-in network detector with soft warnings on mismatch; rows whose number fails the Luhn check are marked **Invalid**
 - **Quantity 1–1000** — stepper or direct input
 - **Live card preview** — with brand mark, chip, expiry and CVV; subtle tilt following the cursor and a swap animation on the number
+- **Payment network shown per result** — every row displays its network, detected from the actual prefix (so Any mode and custom BINs always show the truth)
 - **One-click copy** — the number alone, or number + expiry + CVV, or all numbers at once
 - **Export to TXT** — `number|expiry|cvv` per line
 - **Performance** — chunked list rendering (50 rows per frame), smooth even with 1000 cards
@@ -30,6 +31,9 @@ A lightweight web tool for developers and testers: generates card numbers that p
 | American Express | 15         | `34`, `37` (`4-6-5` format)       |
 | Mir           | 16            | `2200–2204`                       |
 | UnionPay      | 16            | `62`                              |
+| Discover      | 16            | `6011`, `644–649`, `65`           |
+| JCB           | 16            | `3528–3589`                       |
+| Any           | 15–16         | Random real IIN from any network  |
 
 ## Quick start
 
@@ -41,8 +45,8 @@ No installation required:
 
 ## How to use
 
-1. **Pick a network** — the Visa / Mastercard / Amex / Mir / UnionPay switcher.
-2. **Set a BIN (optional)** — up to 6 digits. If the prefix belongs to another network, a soft warning appears, but generation still proceeds. `Esc` clears the field.
+1. **Pick a network** — **Any** (random real network) is selected by default; pick a specific network from the grid below.
+2. **Set a BIN (optional)** — any digits, up to 19. If the prefix belongs to another network, a soft warning appears, but generation still proceeds. A full-length number that fails the Luhn check is shown as-is and marked **Invalid**. `Esc` clears the field.
 3. **Set the quantity** — from 1 to 1000, via the stepper or direct input.
 4. **Hit Generate** — results appear in the list below and the card preview updates.
 
@@ -52,7 +56,7 @@ No installation required:
 - The copy icon on a row — copy `number|expiry|cvv`
 - **Copy all numbers** — copy every number at once
 - **Export TXT** — download a `luhn-numbers.txt` file
-- Click the card preview — copy the number of the first generated card
+- Click the card preview — copy number, expiry and CVV of the first generated card
 
 ## Keyboard shortcuts
 
@@ -82,15 +86,15 @@ The Luhn checksum is the core of the generator. Walking the digits from right to
 
 ### Number generation
 
-1. **Prefix** — either the user's BIN or a random prefix from the network's real IIN ranges (Visa `4`, Mastercard `51–55` / `2221–2720`, Amex `34` / `37`, Mir `2200–2204`, UnionPay `62`).
+1. **Prefix** — either the user's BIN or a random prefix from the network's real IIN ranges (Visa `4`, Mastercard `51–55` / `2221–2720`, Amex `34` / `37`, Mir `2200–2204`, UnionPay `62`, Discover `6011` / `644–649` / `65`, JCB `3528–3589`). In **Any** mode the prefix is a random real IIN from all known networks, and the length is matched to it (15 for Amex prefixes, 16 otherwise) — the result looks like a real card.
 2. **Body** — the prefix is padded with random digits up to `length − 1`; the last digit is the computed check digit.
 3. **Expiry and CVV** — expiry is a random month and a year 2–5 years ahead; CVV is 3 digits (4 for Amex). Amex numbers are formatted as `4-6-5`, all others as groups of 4.
 
 ### Page flow
 
 - **On load** — the state is initialized and a demo generation runs immediately, so the page is never empty.
-- **Network switcher** — a floating indicator slides between segments (position set via CSS variables by JS); switching restyles the card preview and resets it to the placeholder.
-- **BIN field** — non-digit characters are stripped on input; validation requires exactly 6 digits. The prefix is checked against known networks: a mismatch or unknown prefix shows a soft warning but does not block generation. `Esc` clears the field.
+- **Network switcher** — a floating indicator slides between segments (position set via CSS variables by JS); **Any** spans the full width at the top and is selected by default; switching restyles the card preview and resets it to the placeholder.
+- **BIN field** — non-digit characters are stripped on input; any digit sequence up to 19 characters is accepted. A full-length number that fails the Luhn check is shown and marked **Invalid** in the result row.
 - **Quantity** — stepper buttons and direct input (digits only), clamped to 1–1000; `Enter` commits the value and triggers generation.
 
 ### Rendering & performance
