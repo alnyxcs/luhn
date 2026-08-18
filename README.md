@@ -16,10 +16,12 @@ A lightweight web tool for developers and testers: generates card numbers that p
 - **Quantity 1–1000** — stepper or direct input
 - **Live card preview** — with brand mark, chip, expiry and CVV; subtle tilt following the cursor and a swap animation on the number
 - **Payment network shown per result** — every row displays its network, detected from the actual prefix (so Any mode and custom BINs always show the truth)
-- **One-click copy** — the number alone, or number + expiry + CVV, or all numbers at once
+- **Brand-colored accents** — the active network button, the card preview and every result row glow in the detected network's palette
+- **One-click copy** — the number, the expiry, the CVV, or all three at once; the card preview copies `number|expiry|cvv`
 - **Export to TXT** — `number|expiry|cvv` per line
 - **Performance** — chunked list rendering (50 rows per frame), smooth even with 1000 cards
 - **Accessibility** — ARIA attributes, full keyboard support, `prefers-reduced-motion` respected
+- **EN/RU language switch** — animated toggle in the top-right corner; the choice is remembered in localStorage
 - **Zero dependencies** — plain JS and CSS; works even when opened via `file://`
 
 ## Supported networks
@@ -53,6 +55,7 @@ No installation required:
 **Copying:**
 
 - Click a number in the list — copy just the number
+- Click the expiry or CVV in a row — copy just that value
 - The copy icon on a row — copy `number|expiry|cvv`
 - **Copy all numbers** — copy every number at once
 - **Export TXT** — download a `luhn-numbers.txt` file
@@ -93,9 +96,10 @@ The Luhn checksum is the core of the generator. Walking the digits from right to
 ### Page flow
 
 - **On load** — the state is initialized and a demo generation runs immediately, so the page is never empty.
-- **Network switcher** — a floating indicator slides between segments (position set via CSS variables by JS); **Any** spans the full width at the top and is selected by default; switching restyles the card preview and resets it to the placeholder.
+- **Network switcher** — a floating indicator slides between segments (position set via CSS variables by JS); **Any** spans the full width at the top and is selected by default; switching restyles the card preview and resets it to the placeholder. In **Any** mode the preview shows the actual network of the first generated card.
 - **BIN field** — non-digit characters are stripped on input; any digit sequence up to 19 characters is accepted. A full-length number that fails the Luhn check is shown and marked **Invalid** in the result row.
 - **Quantity** — stepper buttons and direct input (digits only), clamped to 1–1000; `Enter` commits the value and triggers generation.
+- **Language switch** — the EN/RU pill in the top-right corner: the active indicator slides between the two options and the page text crossfades in place (no reload feel). The choice is saved to localStorage and restored on load; result rows update their labels in place without re-rendering.
 
 ### Rendering & performance
 
@@ -107,7 +111,7 @@ The Luhn checksum is the core of the generator. Walking the digits from right to
 ### Copy & export
 
 - `navigator.clipboard` is used first, with a hidden-textarea `execCommand` fallback for `file://` and older browsers.
-- Copy targets: the number alone (click on the row), `number|expiry|cvv` (row icon), or all numbers at once (built from state data, not the DOM — fast even at 1000 rows).
+- Copy targets: the number (click on it), the expiry or CVV (click on them), `number|expiry|cvv` (row icon or card preview), or all numbers at once (built from state data, not the DOM — fast even at 1000 rows).
 - Export creates a `Blob`, downloads it as `luhn-numbers.txt` via an object URL, one `number|expiry|cvv` per line.
 - Every copy/export action flashes an inline "Copied ✓" state that fades after 1.5 s; failures surface as toasts.
 

@@ -1,7 +1,4 @@
-/* ============================================================
-   luhn. — генератор номеров карт
-   Тёмный монохром + один тёплый акцент, тонкая типографика
-   ============================================================ */
+
 
 :root {
   --bg: #0d0e10;
@@ -44,8 +41,6 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* ---------- фоновая атмосфера ---------- */
-
 .bg {
   position: fixed;
   inset: 0;
@@ -57,7 +52,65 @@ body {
   animation: bgBreath 22s ease-in-out infinite alternate;
 }
 
-/* ---------- сетка ---------- */
+.lang-switch {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 50;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.lang-switch::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 4px);
+  border-radius: 999px;
+  background: var(--panel);
+  box-shadow: 0 0 0 1px var(--line-strong);
+  transform: translateX(0);
+  transition: none;
+  z-index: 0;
+  pointer-events: none;
+}
+
+html.lang-ready .lang-switch::before {
+  transition: transform 0.3s var(--ease);
+}
+
+.lang-switch[data-active="ru"]::before {
+  transform: translateX(calc(100% + 2px));
+}
+
+.lang-switch__btn {
+  position: relative;
+  z-index: 1;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.25s var(--ease), background 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+
+.lang-switch__btn:hover {
+  color: var(--text);
+}
+
+.lang-switch__btn.is-active {
+  color: var(--text);
+}
 
 .layout {
   position: relative;
@@ -74,10 +127,6 @@ body {
   align-items: center;
   padding: 88px 0 24px;
 }
-
-/* ============================================================
-   контролы
-   ============================================================ */
 
 .controls {
   display: flex;
@@ -113,12 +162,10 @@ body {
   color: var(--faint);
 }
 
-/* сегментированный выбор */
-
 .segmented {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* равные доли на всю ширину */
+  grid-template-columns: repeat(6, 1fr);
   gap: 6px;
   padding: 5px;
   background: var(--panel);
@@ -126,7 +173,6 @@ body {
   border-radius: var(--radius);
 }
 
-/* плавающий индикатор активного сегмента — позицию задаёт JS через --seg-x/--seg-y/--seg-w/--seg-h */
 .segmented::before {
   content: "";
   position: absolute;
@@ -177,22 +223,17 @@ body {
   outline-offset: 1px;
 }
 
-/* Any — на всю ширину контейнера, первым */
 .segmented__item--wide {
   grid-column: 1 / -1;
 }
 
-/* Visa и Mastercard — по половине ширины */
 .segmented__item--half {
   grid-column: span 3;
 }
 
-/* остальные сети — по трети ширины */
 .segmented__item--third {
   grid-column: span 2;
 }
-
-/* инпуты */
 
 .input {
   width: 100%;
@@ -238,8 +279,6 @@ body {
 .field__note.is-warn {
   color: var(--accent);
 }
-
-/* степпер количества */
 
 .stepper-wrap {
   display: flex;
@@ -308,8 +347,6 @@ body {
   border-radius: 6px;
 }
 
-/* кнопки */
-
 .btn {
   appearance: none;
   border: 0;
@@ -343,7 +380,6 @@ body {
   transform: translateY(-1px);
 }
 
-/* деликатный пульс-блик при клике (класс перезапускает JS) */
 .btn--primary.is-pulsing {
   animation: btnPulse 0.55s var(--ease);
 }
@@ -361,10 +397,6 @@ body {
   border-color: var(--line-strong);
 }
 
-/* ============================================================
-   превью карты
-   ============================================================ */
-
 .preview {
   display: flex;
   flex-direction: column;
@@ -381,7 +413,7 @@ body {
   border-radius: 20px;
   overflow: hidden;
   cursor: pointer;
-  /* поверхность: многослойная база + лёгкий оттенок бренда сверху */
+
   background:
     radial-gradient(120% 95% at 50% -10%, var(--brand-tint, transparent), transparent 55%),
     linear-gradient(140deg, #1e2227 0%, #15181d 40%, #101216 72%, #0d0f12 100%);
@@ -391,13 +423,12 @@ body {
     inset 0 0 0 1px rgba(255, 255, 255, 0.02),
     0 30px 60px -25px rgba(0, 0, 0, 0.65),
     0 2px 8px rgba(0, 0, 0, 0.4);
-  /* лёгкий tilt за курсором — углы задаёт JS (--tilt-x/--tilt-y) */
+
   transform: perspective(1100px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
   will-change: transform;
   transition: border-color 0.6s var(--ease), transform 0.4s var(--ease);
 }
 
-/* диагональный «шёлковый» отблеск + перламутровая полоса */
 .card::before {
   content: "";
   position: absolute;
@@ -413,7 +444,6 @@ body {
   border-color: rgba(255, 255, 255, 0.26);
 }
 
-/* мягкое свечение под бренд */
 .card__glow {
   position: absolute;
   inset: 0;
@@ -430,7 +460,6 @@ body {
   opacity: 1;
 }
 
-/* микро-текст на фоне карты */
 .card__watermark {
   position: absolute;
   right: 20px;
@@ -446,7 +475,6 @@ body {
   user-select: none;
 }
 
-/* тонкая текстура шума */
 .card::after {
   content: "";
   position: absolute;
@@ -502,7 +530,6 @@ body {
     0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-/* горизонтальная контактная линия */
 .card__chip::before {
   content: "";
   position: absolute;
@@ -513,7 +540,6 @@ body {
   background: linear-gradient(90deg, rgba(70, 48, 8, 0.5), rgba(70, 48, 8, 0.22));
 }
 
-/* тонкая контактная площадка */
 .card__chip::after {
   content: "";
   position: absolute;
@@ -545,7 +571,6 @@ body {
   white-space: nowrap;
 }
 
-/* заглушка выглядит намеренно: приглушённый тон, геометрия совпадает с номером */
 .card__number.is-placeholder {
   color: rgba(244, 245, 246, 0.5);
   letter-spacing: 0.12em;
@@ -609,8 +634,6 @@ body {
   text-align: right;
 }
 
-/* брендовые метки на карте — стилизованный текст */
-
 .brand-mark {
   display: inline-flex;
   align-items: center;
@@ -625,15 +648,13 @@ body {
 
 .brand-mark__text { line-height: 1; }
 
-/* на карте — крупная метка в правом верхнем углу */
 .card__brand .brand-mark {
   font-size: 13px;
   letter-spacing: 0.2em;
-  margin-right: -0.2em; /* компенсация трекинга после последней буквы */
+  margin-right: -0.2em;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-/* в сегментах — компактная метка, цвет текста наследует кнопку */
 .segmented__item .brand-mark {
   font-size: 12px;
   font-weight: 600;
@@ -653,10 +674,6 @@ body {
 .preview__note.is-copied {
   color: var(--ok);
 }
-
-/* ============================================================
-   результаты
-   ============================================================ */
 
 .results {
   padding: 40px 0 8px;
@@ -757,7 +774,7 @@ body {
 }
 
 .result__number {
-  flex: 0 1 auto; /* по ширине текста — метка сети прижимается к номеру */
+  flex: 0 1 auto;
   min-width: 0;
   font-family: var(--font-mono);
   font-size: 13.5px;
@@ -781,8 +798,6 @@ body {
   border-radius: 4px;
 }
 
-/* ---------- большие списки: без тяжёлых эффектов на каждой строке ---------- */
-
 .results__list.is-large .result {
   animation: fade 0.3s var(--ease) backwards;
   transition: border-color 0.25s var(--ease), background 0.25s var(--ease);
@@ -800,12 +815,10 @@ body {
   text-shadow: none;
 }
 
-/* ---------- собственная прокрутка списка (>10 строк) ---------- */
-
 .results__list.is-scrollable {
   max-height: 440px;
   overflow-y: auto;
-  padding-right: 8px; /* скроллбар не прилипает к тексту */
+  padding-right: 8px;
   scrollbar-width: thin;
   scrollbar-color: var(--line-strong) transparent;
 }
@@ -827,14 +840,13 @@ body {
   background: var(--muted);
 }
 
-/* деликатный фейд под последней строкой — намек на прокрутку */
 .results__list.is-scrollable::after {
   content: "";
   position: sticky;
   bottom: 0;
   display: block;
   height: 36px;
-  margin-top: -41px; /* 36px + gap 5px — фейд ложится поверх последней строки */
+  margin-top: -41px;
   background: linear-gradient(180deg, transparent, rgba(13, 14, 16, 0.09));
   pointer-events: none;
   flex-shrink: 0;
@@ -845,7 +857,7 @@ body {
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
-  margin-left: auto; /* срок и CVV остаются прижатыми к правому краю */
+  margin-left: auto;
 }
 
 .result__meta-sep {
@@ -924,7 +936,6 @@ body {
   height: 13px;
 }
 
-/* инлайн-состояние «Copied» на строке */
 .result.is-copied .result__number {
   color: var(--ok);
   text-shadow: 0 0 12px rgba(94, 201, 143, 0.3);
@@ -965,10 +976,6 @@ body {
 }
 
 .results__empty.is-hidden { display: none; }
-
-/* ============================================================
-   подвал
-   ============================================================ */
 
 .site-footer {
   position: relative;
@@ -1013,8 +1020,6 @@ body {
 .footer-link svg {
   display: block;
 }
-
-/* ---------- тосты ---------- */
 
 .toasts {
   position: fixed;
@@ -1063,10 +1068,6 @@ body {
   animation: toastOut 0.3s var(--ease) both;
 }
 
-/* ============================================================
-   анимации
-   ============================================================ */
-
 @keyframes rise {
   from {
     opacity: 0;
@@ -1093,13 +1094,11 @@ body {
   to { opacity: 0; transform: translateX(10px) translateY(4px); }
 }
 
-/* медленное «дыхание» фоновой атмосферы */
 @keyframes bgBreath {
   from { opacity: 0.85; transform: scale(1); }
   to { opacity: 1; transform: scale(1.035); }
 }
 
-/* едва заметный пульс-блик на кнопке Generate */
 @keyframes btnPulse {
   0% { box-shadow: 0 8px 24px -10px rgba(224, 168, 76, 0.45), 0 0 0 0 var(--accent-soft); }
   100% { box-shadow: 0 8px 24px -10px rgba(224, 168, 76, 0.45), 0 0 0 16px rgba(224, 168, 76, 0); }
@@ -1119,6 +1118,21 @@ body {
   animation: cardPulse 1.2s var(--ease);
 }
 
+@keyframes langFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+html.is-switching-lang [data-i18n],
+html.is-switching-lang .segmented .brand-mark,
+html.is-switching-lang .field__note {
+  animation: langFadeIn 0.15s var(--ease) both;
+}
+
+html.is-switching-lang .card [data-i18n] {
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .card { transform: none; }
@@ -1128,10 +1142,6 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
-
-/* ============================================================
-   адаптивность
-   ============================================================ */
 
 @media (max-width: 900px) {
   .grid {
@@ -1154,7 +1164,6 @@ body {
     padding: 0 16px;
   }
 
-  /* сегменты — всегда в одну строку, компактно на узких экранах */
   .segmented {
     padding: 4px;
     gap: 4px;

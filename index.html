@@ -14,14 +14,19 @@
 
   <div class="bg" aria-hidden="true"></div>
 
+  <div class="lang-switch" id="langSwitch" role="group" aria-label="Language" data-i18n-attr="language">
+    <button class="lang-switch__btn is-active" type="button" data-lang="en">EN</button>
+    <button class="lang-switch__btn" type="button" data-lang="ru">RU</button>
+  </div>
+
   <main class="layout">
 
     <div class="grid">
 
-      <section class="controls" aria-label="Generation settings">
+      <section class="controls" aria-label="Generation settings" data-i18n-attr="controlsLabel">
         <div class="field">
-          <span class="field__label">Payment network</span>
-          <div class="segmented" id="brandSeg" role="tablist" aria-label="Payment network selection">
+          <span class="field__label" data-i18n="network">Payment network</span>
+          <div class="segmented" id="brandSeg" role="tablist" aria-label="Payment network selection" data-i18n-attr="networkSelect">
             <button class="segmented__item segmented__item--wide is-active" type="button" role="tab" aria-selected="true" data-brand="any">Any</button>
             <button class="segmented__item segmented__item--half" type="button" role="tab" aria-selected="false" data-brand="visa">Visa</button>
             <button class="segmented__item segmented__item--half" type="button" role="tab" aria-selected="false" data-brand="mastercard">Mastercard</button>
@@ -34,32 +39,32 @@
         </div>
 
         <div class="field">
-          <label class="field__label" for="binInput">BIN prefix <span class="field__hint">optional</span></label>
+          <label class="field__label" for="binInput" data-i18n="binPrefix">BIN prefix <span class="field__hint" data-i18n="optional">optional</span></label>
           <input id="binInput" class="input" type="text" inputmode="numeric" maxlength="19"
                  placeholder="400000" autocomplete="off" spellcheck="false">
           <p class="field__note" id="binNote" hidden></p>
         </div>
 
         <div class="field field--row">
-          <label class="field__label" for="qtyInput">Quantity</label>
+          <label class="field__label" for="qtyInput" data-i18n="quantity">Quantity</label>
           <div class="stepper-wrap">
             <div class="stepper">
-              <button class="stepper__btn" type="button" id="qtyMinus" aria-label="Decrease">−</button>
+              <button class="stepper__btn" type="button" id="qtyMinus" aria-label="Decrease" data-i18n-attr="decrease">−</button>
               <input id="qtyInput" class="stepper__input" type="text" inputmode="numeric" maxlength="4"
-                     value="3" aria-label="Quantity" aria-describedby="qtyNote"
+                     value="3" aria-label="Quantity" aria-describedby="qtyNote" data-i18n-attr="quantity"
                      autocomplete="off" spellcheck="false">
-              <button class="stepper__btn" type="button" id="qtyPlus" aria-label="Increase">+</button>
+              <button class="stepper__btn" type="button" id="qtyPlus" aria-label="Increase" data-i18n-attr="increase">+</button>
             </div>
             <p class="field__note" id="qtyNote" hidden></p>
           </div>
         </div>
 
         <button class="btn btn--primary" type="button" id="generateBtn">
-          <span class="btn__label">Generate</span>
+          <span class="btn__label" data-i18n="generate">Generate</span>
         </button>
       </section>
 
-      <section class="preview" aria-label="Card preview">
+      <section class="preview" aria-label="Card preview" data-i18n-attr="previewLabel">
         <div class="card" id="card">
           <div class="card__glow" aria-hidden="true"></div>
           <span class="card__watermark" aria-hidden="true">luhn.</span>
@@ -82,39 +87,39 @@
             <div class="card__number is-placeholder" id="cardNumber">••••&nbsp;••••&nbsp;••••&nbsp;••••</div>
             <div class="card__bottom">
               <div class="card__block">
-                <span class="card__label">Cardholder</span>
+                <span class="card__label" data-i18n="cardholder">Cardholder</span>
                 <span class="card__value card__value--name">IVAN IVANOV</span>
               </div>
               <div class="card__meta">
                 <div class="card__block card__block--expiry">
-                  <span class="card__label">Expiry</span>
+                  <span class="card__label" data-i18n="expiry">Expiry</span>
                   <span class="card__value" id="cardExpiry">09/29</span>
                 </div>
                 <div class="card__block card__block--cvv">
-                  <span class="card__label">CVV</span>
+                  <span class="card__label" data-i18n="cvv">CVV</span>
                   <span class="card__value" id="cardCvv">•••</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <p class="preview__note" id="previewNote">Click the card to copy number, expiry and CVV</p>
+        <p class="preview__note" id="previewNote" data-i18n="previewNote">Click the card to copy number, expiry and CVV</p>
       </section>
 
     </div>
 
-    <section class="results" id="results" aria-label="Results">
+    <section class="results" id="results" aria-label="Results" data-i18n-attr="resultsLabel">
       <div class="results__head">
-        <h2 class="results__title">Results <span class="results__count" id="resultsCount" role="status"></span></h2>
+        <h2 class="results__title"><span data-i18n="results">Results</span> <span class="results__count" id="resultsCount" role="status"></span></h2>
         <div class="results__actions">
-          <button class="btn btn--ghost" type="button" id="copyAllBtn" hidden>Copy all numbers</button>
-          <button class="btn btn--ghost" type="button" id="exportBtn" hidden aria-label="Export numbers to a TXT file">Export TXT</button>
+          <button class="btn btn--ghost" type="button" id="copyAllBtn" hidden data-i18n="copyAll">Copy all numbers</button>
+          <button class="btn btn--ghost" type="button" id="exportBtn" hidden aria-label="Export numbers to a TXT file" data-i18n="exportTxt" data-i18n-attr="exportTxtAria">Export TXT</button>
         </div>
       </div>
       <ul class="results__list" id="resultsList"></ul>
       <div class="results__empty" id="resultsEmpty">
         <span class="results__empty-line"></span>
-        <p>Numbers will appear here after generation</p>
+        <p data-i18n="empty">Numbers will appear here after generation</p>
       </div>
     </section>
 
@@ -125,9 +130,9 @@
       <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" focusable="false">
         <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.73.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .3.2.66.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/>
       </svg>
-      <span>GitHub</span>
+      <span data-i18n="github">GitHub</span>
     </a>
-    <p>Numbers, expiry dates and CVVs are generated randomly and are not real payment data.</p>
+    <p data-i18n="disclaimer">Numbers, expiry dates and CVVs are generated randomly and are not real payment data.</p>
   </footer>
 
   <div class="toasts" id="toasts" aria-live="polite" role="status"></div>
