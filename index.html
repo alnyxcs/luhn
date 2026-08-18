@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>luhn — card number generator</title>
+  <meta name="description" content="Generate Luhn-valid bank card numbers. Visa, Mastercard, Amex, Mir.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="bg" aria-hidden="true"></div>
+
+  <main class="layout">
+
+    <div class="grid">
+
+      <section class="controls" aria-label="Generation settings">
+        <div class="field">
+          <span class="field__label">Payment network</span>
+          <div class="segmented" id="brandSeg" role="tablist" aria-label="Payment network selection">
+            <button class="segmented__item is-active" type="button" role="tab" aria-selected="true" data-brand="visa">Visa</button>
+            <button class="segmented__item" type="button" role="tab" aria-selected="false" data-brand="mastercard">Mastercard</button>
+            <button class="segmented__item" type="button" role="tab" aria-selected="false" data-brand="amex">Amex</button>
+            <button class="segmented__item" type="button" role="tab" aria-selected="false" data-brand="mir">Mir</button>
+            <button class="segmented__item" type="button" role="tab" aria-selected="false" data-brand="unionpay">UnionPay</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="binInput">BIN prefix <span class="field__hint">optional</span></label>
+          <input id="binInput" class="input" type="text" inputmode="numeric" maxlength="6"
+                 placeholder="400000" autocomplete="off" spellcheck="false">
+          <p class="field__note" id="binNote" hidden></p>
+        </div>
+
+        <div class="field field--row">
+          <label class="field__label" for="qtyInput">Quantity</label>
+          <div class="stepper-wrap">
+            <div class="stepper">
+              <button class="stepper__btn" type="button" id="qtyMinus" aria-label="Decrease">−</button>
+              <input id="qtyInput" class="stepper__input" type="text" inputmode="numeric" maxlength="4"
+                     value="3" aria-label="Quantity" aria-describedby="qtyNote"
+                     autocomplete="off" spellcheck="false">
+              <button class="stepper__btn" type="button" id="qtyPlus" aria-label="Increase">+</button>
+            </div>
+            <p class="field__note" id="qtyNote" hidden></p>
+          </div>
+        </div>
+
+        <button class="btn btn--primary" type="button" id="generateBtn">
+          <span class="btn__label">Generate</span>
+        </button>
+      </section>
+
+      <section class="preview" aria-label="Card preview">
+        <div class="card" id="card">
+          <div class="card__glow" aria-hidden="true"></div>
+          <span class="card__watermark" aria-hidden="true">luhn.</span>
+          <div class="card__inner">
+            <div class="card__top">
+              <div class="card__top-left">
+                <div class="card__chip" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+                <span class="card__contactless" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7.5 8.5a5.6 5.6 0 0 1 0 7"></path>
+                    <path d="M11 6.2a9.3 9.3 0 0 1 0 11.6"></path>
+                    <path d="M14.5 4a13 13 0 0 1 0 16"></path>
+                  </svg>
+                </span>
+              </div>
+              <div class="card__brand" id="cardBrand" aria-hidden="true"></div>
+            </div>
+            <div class="card__number is-placeholder" id="cardNumber">••••&nbsp;••••&nbsp;••••&nbsp;••••</div>
+            <div class="card__bottom">
+              <div class="card__block">
+                <span class="card__label">Cardholder</span>
+                <span class="card__value card__value--name">IVAN IVANOV</span>
+              </div>
+              <div class="card__meta">
+                <div class="card__block card__block--expiry">
+                  <span class="card__label">Expiry</span>
+                  <span class="card__value" id="cardExpiry">09/29</span>
+                </div>
+                <div class="card__block card__block--cvv">
+                  <span class="card__label">CVV</span>
+                  <span class="card__value" id="cardCvv">•••</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="preview__note" id="previewNote">Click the card to copy the number</p>
+      </section>
+
+    </div>
+
+    <section class="results" id="results" aria-label="Results">
+      <div class="results__head">
+        <h2 class="results__title">Results <span class="results__count" id="resultsCount" role="status"></span></h2>
+        <div class="results__actions">
+          <button class="btn btn--ghost" type="button" id="copyAllBtn" hidden>Copy all numbers</button>
+          <button class="btn btn--ghost" type="button" id="exportBtn" hidden aria-label="Export numbers to a TXT file">Export TXT</button>
+        </div>
+      </div>
+      <ul class="results__list" id="resultsList"></ul>
+      <div class="results__empty" id="resultsEmpty">
+        <span class="results__empty-line"></span>
+        <p>Numbers will appear here after generation</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>Numbers, expiry dates and CVVs are generated randomly and are not real payment data.</p>
+  </footer>
+
+  <div class="toasts" id="toasts" aria-live="polite" role="status"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
